@@ -1,0 +1,33 @@
+.game-screen {
+    position: relative;
+    outline: none;
+}
+
+.clickable-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-family:'Fondamento', cursive;
+    cursor: pointer;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+.square {
+    width: 64px;
+    height: 64px;
+    position: relative;
+}
+
+.sprite {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 64px;
+    height: 64px;
+}

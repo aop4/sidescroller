@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <title>Lakes Sidescroller</title>
+        <link rel="stylesheet" href="index.css" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Fondamento&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div id="app">
+            <div class="game-screen" rel="gameScreen" tabindex="0" v-on:keyup.left="movePlayerLeft(player)" v-on:keyup.right="movePlayerRight(player)" v-on:keyup.down="movePlayerDown(player)" v-on:keyup.up="movePlayerUp(player)">
+                <h1 v-if="!gameStarted" v-on:click="gameStarted = true" class="clickable-text">Click to Play</h1>
+                <div v-for="row in screenSize" class="row">
+                    <div v-for="col in screenSize" class="square">
+                        <img :src="matrix[row + screenYOffset][col + screenXOffset] === 0 ? '../resources/water_small.png' : '../resources/land_small.png'" class="sprite">
+                        <img v-if="row + screenYOffset === player.yCoord && col + screenXOffset === player.xCoord" src="../resources/sprite.png" class="sprite">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js" defer></script>
+        <!-- dev version with console warnings-->
+        <!-- <script src="https://vuejs.org/js/vue.js"></script> -->
+        <script src="index.js" defer></script>
+    </body>
+</html>
