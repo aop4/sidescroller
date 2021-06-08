@@ -3,14 +3,31 @@
     outline: none;
 }
 
-.clickable-text {
+.fancy-text {
+    font-family:'Fondamento', cursive;
+}
+
+.info-panel {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
-    font-family:'Fondamento', cursive;
+    text-align: center;
+}
+
+.clickable-text {
     cursor: pointer;
+}
+
+.play-btn {
+    text-shadow: 2px 2px white;
+}
+
+.instructions {
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px black;
 }
 
 .row {
@@ -28,6 +45,14 @@
     position: absolute;
     bottom: 0;
     right: 0;
+}
+
+.sprite-large {
     width: 64px;
     height: 64px;
+}
+
+.sprite-small {
+    width: 32px;
+    height: 32px;
 }
