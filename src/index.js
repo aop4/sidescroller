@@ -9,6 +9,7 @@ class Sprite {
 
 class Player extends Sprite {
   health = 5;
+  numCoins = 0;
 }
 
 class Skeleton extends Sprite {}
@@ -32,22 +33,31 @@ const TERRAIN_CODES = Object.freeze({
   OCEAN : 2
 });
 
+class GameData {
+  screenXOffset;
+  screenYOffset;
+  totalNumCoins = 0;
+}
+
 const SCREEN_SIZE = 8; // width/height of the player's current view of the map
 const gameMap = generateMatrix();
 // player starts in middle of map
 const PLAYER_START_X = gameMap[0].length / 2;
 const PLAYER_START_Y = gameMap.length / 2;
-let screenYOffset = Math.floor(PLAYER_START_Y / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from top of game map
-let screenXOffset = Math.floor(PLAYER_START_X / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from left side of game map
+const player = new Sprite(PLAYER_START_X, PLAYER_START_Y);
+
+const gameData = new GameData();
+gameData.totalNumCoins = 0;
+
+resetScreenOffsets();
 
 let vue = new Vue({
   el: '#app',
   data: {
     matrix: gameMap,
-    player: new Sprite(PLAYER_START_X, PLAYER_START_Y),
+    gameData: gameData,
+    player: player,
     gameStarted: false,
-    screenYOffset: screenYOffset,
-    screenXOffset: screenXOffset,
     screenSize: SCREEN_SIZE
   },
   methods: {
@@ -111,30 +121,16 @@ function movePlayerDown(sprite) {
 
 function movePlayerToCoordinates(sprite, x, y) {
   if (isValidCoordinate(x, y)) {
-    let shouldRedrawScreen = false;
-
     sprite.xCoord = x;
     sprite.yCoord = y;
     
-    if (x >= screenXOffset + SCREEN_SIZE) {
-      screenXOffset += SCREEN_SIZE;
-      shouldRedrawScreen = true;
-    } else if (x < screenXOffset) {
-      screenXOffset -= SCREEN_SIZE;
-      shouldRedrawScreen = true;
-    } else if (y >= screenYOffset + SCREEN_SIZE) {
-      screenYOffset += SCREEN_SIZE;
-      shouldRedrawScreen = true;
-    } else if (y < screenYOffset) {
-      screenYOffset -= SCREEN_SIZE;
-      shouldRedrawScreen = true;
-    }
-
-    if (shouldRedrawScreen) {
-      vue.$data.screenYOffset = screenYOffset;
-      vue.$data.screenXOffset = screenXOffset;
-    }
+    resetScreenOffsets();
   }
+}
+
+function resetScreenOffsets() {
+  gameData.screenYOffset = Math.floor(player.yCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from top of game map
+  gameData.screenXOffset = Math.floor(player.xCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from left side of game map
 }
 
 function isValidCoordinate(x, y) {

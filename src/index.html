@@ -17,10 +17,11 @@
                 </div>
                 <div v-for="row in screenSize" class="row">
                     <div v-for="col in screenSize" class="square">
-                        <img v-if="shouldDrawLake(col + screenXOffset, row + screenYOffset)" src="../resources/water_small.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawLand(col + screenXOffset, row + screenYOffset)" src="../resources/land_small.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawCoin(col + screenXOffset, row + screenYOffset)" src="../resources/coin.png" class="sprite sprite-small">
-                        <img v-if="shouldDrawPlayer(player, col + screenXOffset, row + screenYOffset)" src="../resources/sprite.png" class="sprite sprite-large">                    </div>
+                        <img v-if="shouldDrawLake(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/water_small.png" class="sprite sprite-large">
+                        <img v-if="shouldDrawLand(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/land_small.png" class="sprite sprite-large">
+                        <img v-if="shouldDrawCoin(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/coin.png" class="sprite sprite-small">
+                        <img v-if="shouldDrawPlayer(player, col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/sprite.png" class="sprite sprite-large">
+                    </div>
                 </div>
             </div>
         </div>
