@@ -40,13 +40,12 @@ class GameData {
 }
 
 const SCREEN_SIZE = 8; // width/height of the player's current view of the map
+const gameData = new GameData();
 const gameMap = generateMatrix();
 // player starts in middle of map
 const PLAYER_START_X = gameMap[0].length / 2;
 const PLAYER_START_Y = gameMap.length / 2;
 const player = new Player(PLAYER_START_X, PLAYER_START_Y);
-
-const gameData = new GameData();
 
 resetScreenOffsets();
 
@@ -93,7 +92,7 @@ function generateMatrix() {
         matrix[row].push(mapSquare);
         if (Math.random() < COIN_PROBABILITY) {
           mapSquare.sprites.push(new Coin());
-          gameData.numCoins++;
+          gameData.totalNumCoins++;
         }
       } else {
         matrix[row].push(new MapSquare(TERRAIN_CODES.LAKE));
