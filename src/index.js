@@ -44,10 +44,9 @@ const gameMap = generateMatrix();
 // player starts in middle of map
 const PLAYER_START_X = gameMap[0].length / 2;
 const PLAYER_START_Y = gameMap.length / 2;
-const player = new Sprite(PLAYER_START_X, PLAYER_START_Y);
+const player = new Player(PLAYER_START_X, PLAYER_START_Y);
 
 const gameData = new GameData();
-gameData.totalNumCoins = 0;
 
 resetScreenOffsets();
 
@@ -75,7 +74,7 @@ let vue = new Vue({
       return player.xCoord === x && player.yCoord === y;
     },
     shouldDrawCoin(x, y) {
-      return gameMap[y][x].sprites.some(sprite => sprite instanceof Coin);
+      return landSquareContainsSprite(x, y, Coin);
     }
   }
 });
@@ -94,6 +93,7 @@ function generateMatrix() {
         matrix[row].push(mapSquare);
         if (Math.random() < COIN_PROBABILITY) {
           mapSquare.sprites.push(new Coin());
+          gameData.numCoins++;
         }
       } else {
         matrix[row].push(new MapSquare(TERRAIN_CODES.LAKE));
@@ -103,36 +103,61 @@ function generateMatrix() {
   return matrix;
 }
 
-function movePlayerLeft(sprite) {
-  movePlayerToCoordinates(sprite, sprite.xCoord - 1, sprite.yCoord);
+function movePlayerLeft(player) {
+  movePlayerToCoordinates(player, player.xCoord - 1, player.yCoord);
 }
 
-function movePlayerRight(sprite) {
-  movePlayerToCoordinates(sprite, sprite.xCoord + 1, sprite.yCoord);
+function movePlayerRight(player) {
+  movePlayerToCoordinates(player, player.xCoord + 1, player.yCoord);
 }
 
-function movePlayerUp(sprite) {
-  movePlayerToCoordinates(sprite, sprite.xCoord, sprite.yCoord - 1);
+function movePlayerUp(player) {
+  movePlayerToCoordinates(player, player.xCoord, player.yCoord - 1);
 }
 
-function movePlayerDown(sprite) {
-  movePlayerToCoordinates(sprite, sprite.xCoord, sprite.yCoord + 1);
+function movePlayerDown(player) {
+  movePlayerToCoordinates(player, player.xCoord, player.yCoord + 1);
 }
 
-function movePlayerToCoordinates(sprite, x, y) {
+function movePlayerToCoordinates(player, x, y) {
   if (isValidCoordinate(x, y)) {
-    sprite.xCoord = x;
-    sprite.yCoord = y;
+    player.xCoord = x;
+    player.yCoord = y;
+    onPlayerMoved(x, y);
     
     resetScreenOffsets();
+  }
+}
+
+function isValidCoordinate(x, y) {
+  return y >= 0 && y < gameMap.length && x >= 0 && x < gameMap[0].length;
+}
+
+function onPlayerMoved(x, y) {
+  if (landSquareContainsSprite(x, y, Coin)) {
+    player.numCoins++;
+    removeSpriteFromLandSquare(x, y, Coin);
+  }
+}
+
+function landSquareContainsSprite(x, y, clazz) {
+  return gameMap[y][x].sprites.some(sprite => sprite instanceof clazz);
+}
+
+/**
+ * Removes the first sprite of type `clazz` found at coordinate `(x, y)` of the game map.
+ * @param {*} x x-coordinate (column) in game map
+ * @param {*} y y-coordinate (row) in game map
+ * @param {*} clazz class of sprite to remove
+ */
+function removeSpriteFromLandSquare(x, y, clazz) {
+  let index = gameMap[y][x].sprites.findIndex(sprite => sprite instanceof clazz);
+  if (index > -1) {
+    gameMap[y][x].sprites.splice(index, 1);
   }
 }
 
 function resetScreenOffsets() {
   gameData.screenYOffset = Math.floor(player.yCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from top of game map
   gameData.screenXOffset = Math.floor(player.xCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from left side of game map
-}
-
-function isValidCoordinate(x, y) {
-  return y >= 0 && y < gameMap.length && x >= 0 && x < gameMap[0].length;
 }
