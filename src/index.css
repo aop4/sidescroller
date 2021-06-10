@@ -86,3 +86,8 @@
 .health-status {
     text-align: right;
 }
+
+.skeleton {
+    width: 48px;
+    height: 48px;
+}

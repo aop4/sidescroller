@@ -10,9 +10,38 @@ class Sprite {
 class Player extends Sprite {
   health = 5;
   numCoins = 0;
+
+  onAttacked() {
+    if (this.health > 0) {
+      this.health--;
+    }
+  }
 }
 
-class Skeleton extends Sprite {}
+class Skeleton extends Sprite {
+  coin;
+  constructor(xCoord, yCoord, coin) {
+    super(xCoord, yCoord);
+    this.coin = coin;
+    setInterval(() => this.move(), 500);
+  }
+
+  move() {
+    // skeleton can teleport to land terrain within 1 square of coin
+    const SKELETON_RANGE = 3;
+    let nextX = this.coin.xCoord + Math.floor(Math.random() * SKELETON_RANGE) - 1;
+    let nextY = this.coin.yCoord + Math.floor(Math.random() * SKELETON_RANGE) - 1;
+    if (isValidCoordinate(nextX, nextY) && landSquareHasTerrain(nextX, nextY, TERRAIN_CODES.LAND)) {
+      removeSpriteFromLandSquare(this.xCoord, this.yCoord, this);
+      addSpriteToLandSquare(nextX, nextY, this);
+      this.xCoord = nextX;
+      this.yCoord = nextY;
+      if (player.xCoord === this.xCoord && player.yCoord === this.yCoord) {
+        player.onAttacked();
+      }
+    }
+  }
+}
 
 class Coin extends Sprite {}
 
@@ -64,19 +93,26 @@ let vue = new Vue({
     movePlayerRight,
     movePlayerLeft,
     shouldDrawLand(x, y) {
-      return gameMap[y][x].terrainCode === TERRAIN_CODES.LAND;
+      return landSquareHasTerrain(x, y, TERRAIN_CODES.LAND);
     },
     shouldDrawLake(x, y) {
-      return gameMap[y][x].terrainCode === TERRAIN_CODES.LAKE;
+      return landSquareHasTerrain(x, y, TERRAIN_CODES.LAKE);
     },
     shouldDrawPlayer(player, x, y) {
       return player.xCoord === x && player.yCoord === y;
     },
     shouldDrawCoin(x, y) {
       return landSquareContainsSprite(x, y, Coin);
+    },
+    shouldDrawSkeleton(x, y) {
+      return landSquareContainsSprite(x, y, Skeleton);
     }
   }
 });
+
+function landSquareHasTerrain(x, y, terrainCode) {
+  return gameMap[y][x].terrainCode === terrainCode;
+}
 
 function generateMatrix() {
   const MATRIX_WIDTH = SCREEN_SIZE * 3;
@@ -91,8 +127,7 @@ function generateMatrix() {
         mapSquare = new MapSquare(TERRAIN_CODES.LAND);
         matrix[row].push(mapSquare);
         if (Math.random() < COIN_PROBABILITY) {
-          mapSquare.sprites.push(new Coin());
-          gameData.totalNumCoins++;
+          createCoinAndSkeletonGuard(mapSquare, col, row);
         }
       } else {
         matrix[row].push(new MapSquare(TERRAIN_CODES.LAKE));
@@ -100,6 +135,14 @@ function generateMatrix() {
     }
   }
   return matrix;
+}
+
+function createCoinAndSkeletonGuard(mapSquare, x, y) {
+  coin = new Coin(x, y);
+  skeleton = new Skeleton(x, y, coin);
+  mapSquare.sprites.push(skeleton);
+  mapSquare.sprites.push(coin);
+  gameData.totalNumCoins++;
 }
 
 function movePlayerLeft(player) {
@@ -135,7 +178,10 @@ function isValidCoordinate(x, y) {
 function onPlayerMoved(x, y) {
   if (landSquareContainsSprite(x, y, Coin)) {
     player.numCoins++;
-    removeSpriteFromLandSquare(x, y, Coin);
+    removeSpriteClassFromLandSquare(x, y, Coin);
+  }
+  if (landSquareContainsSprite(x, y, Skeleton)) {
+    player.onAttacked();
   }
 }
 
@@ -149,11 +195,22 @@ function landSquareContainsSprite(x, y, clazz) {
  * @param {*} y y-coordinate (row) in game map
  * @param {*} clazz class of sprite to remove
  */
-function removeSpriteFromLandSquare(x, y, clazz) {
+function removeSpriteClassFromLandSquare(x, y, clazz) {
   let index = gameMap[y][x].sprites.findIndex(sprite => sprite instanceof clazz);
   if (index > -1) {
     gameMap[y][x].sprites.splice(index, 1);
   }
+}
+
+function removeSpriteFromLandSquare(x, y, sprite) {
+  let index = gameMap[y][x].sprites.findIndex(s => s === sprite);
+  if (index > -1) {
+    gameMap[y][x].sprites.splice(index, 1);
+  }
+}
+
+function addSpriteToLandSquare(x, y, sprite) {
+  gameMap[y][x].sprites.push(sprite);
 }
 
 function resetScreenOffsets() {

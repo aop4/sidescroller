@@ -21,6 +21,7 @@
                         <img v-if="shouldDrawLand(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/land_small.png" class="sprite sprite-large">
                         <img v-if="shouldDrawCoin(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/coin.png" class="sprite sprite-small sprite-centered">
                         <img v-if="shouldDrawPlayer(player, col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/sprite.png" class="sprite sprite-large">
+                        <img v-if="shouldDrawSkeleton(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/skeleton.png" class="sprite skeleton">
                     </div>
                 </div>
                 <div class="status-bar">
@@ -37,8 +38,6 @@
             </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.28/vue.min.js" defer></script>
-        <!-- dev version with console warnings-->
-        <!-- <script src="https://vuejs.org/js/vue.js"></script> -->
         <script src="index.js" defer></script>
     </body>
 </html>
