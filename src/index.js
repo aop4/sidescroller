@@ -11,8 +11,8 @@ class Player extends Sprite {
   health = 5;
   numCoins = 0;
 
-  onAttacked() {
-    if (this.health > 0) {
+  onInjured() {
+    if (this.health > 0 && gameData.hasGameStarted && this.numCoins < gameData.totalNumCoins) {
       this.health--;
     }
   }
@@ -31,13 +31,13 @@ class Skeleton extends Sprite {
     const SKELETON_RANGE = 3;
     let nextX = this.coin.xCoord + Math.floor(Math.random() * SKELETON_RANGE) - 1;
     let nextY = this.coin.yCoord + Math.floor(Math.random() * SKELETON_RANGE) - 1;
-    if (isValidCoordinate(nextX, nextY) && landSquareHasTerrain(nextX, nextY, TERRAIN_CODES.LAND)) {
+    if (isValidCoordinate(gameMap, nextX, nextY) && landSquareHasTerrain(nextX, nextY, TERRAIN_CODES.LAND)) {
       removeSpriteFromLandSquare(this.xCoord, this.yCoord, this);
       addSpriteToLandSquare(nextX, nextY, this);
       this.xCoord = nextX;
       this.yCoord = nextY;
       if (player.xCoord === this.xCoord && player.yCoord === this.yCoord) {
-        player.onAttacked();
+        player.onInjured();
       }
     }
   }
@@ -66,6 +66,7 @@ class GameData {
   screenXOffset;
   screenYOffset;
   totalNumCoins = 0;
+  hasGameStarted = false;
 }
 
 const SCREEN_SIZE = 8; // width/height of the player's current view of the map
@@ -84,7 +85,6 @@ let vue = new Vue({
     matrix: gameMap,
     gameData: gameData,
     player: player,
-    gameStarted: false,
     screenSize: SCREEN_SIZE
   },
   methods: {
@@ -97,6 +97,9 @@ let vue = new Vue({
     },
     shouldDrawLake(x, y) {
       return landSquareHasTerrain(x, y, TERRAIN_CODES.LAKE);
+    },
+    shouldDrawOcean(x, y) {
+      return landSquareHasTerrain(x, y, TERRAIN_CODES.OCEAN);
     },
     shouldDrawPlayer(player, x, y) {
       return player.xCoord === x && player.yCoord === y;
@@ -134,6 +137,7 @@ function generateMatrix() {
       }
     }
   }
+  populateOceanTerrain(matrix);
   return matrix;
 }
 
@@ -143,6 +147,33 @@ function createCoinAndSkeletonGuard(mapSquare, x, y) {
   mapSquare.sprites.push(skeleton);
   mapSquare.sprites.push(coin);
   gameData.totalNumCoins++;
+}
+
+/**
+ * Identify ocean terrain based on a randomly generated map. Any contiguous body of
+ * water that touches the edge of the game map will be ocean.
+ */
+function populateOceanTerrain(matrix) {
+  // top and bottom row
+  for (let col = 0; col < matrix[0].length; col++) {
+    identifyOceanSquares(matrix, 0, col);
+    identifyOceanSquares(matrix, matrix.length - 1, col);
+  }
+  // first and last column
+  for (let row = 0; row < matrix.length; row++) {
+    identifyOceanSquares(matrix, row, 0);
+    identifyOceanSquares(matrix, row, matrix[0].length - 1);
+  }
+}
+
+function identifyOceanSquares(matrix, row, col) {
+  if (isValidCoordinate(matrix, col, row) && matrix[row][col].terrainCode === TERRAIN_CODES.LAKE) {
+    matrix[row][col].terrainCode = TERRAIN_CODES.OCEAN;
+    identifyOceanSquares(matrix, row + 1, col);
+    identifyOceanSquares(matrix, row - 1, col);
+    identifyOceanSquares(matrix, row, col + 1);
+    identifyOceanSquares(matrix, row, col - 1);
+  }
 }
 
 function movePlayerLeft(player) {
@@ -162,7 +193,7 @@ function movePlayerDown(player) {
 }
 
 function movePlayerToCoordinates(player, x, y) {
-  if (isValidCoordinate(x, y)) {
+  if (isValidCoordinate(gameMap, x, y)) {
     player.xCoord = x;
     player.yCoord = y;
     onPlayerMoved(x, y);
@@ -171,17 +202,20 @@ function movePlayerToCoordinates(player, x, y) {
   }
 }
 
-function isValidCoordinate(x, y) {
-  return y >= 0 && y < gameMap.length && x >= 0 && x < gameMap[0].length;
+function isValidCoordinate(matrix, x, y) {
+  return y >= 0 && y < matrix.length && x >= 0 && x < matrix[0].length;
 }
 
 function onPlayerMoved(x, y) {
-  if (landSquareContainsSprite(x, y, Coin)) {
+  if (landSquareContainsSprite(x, y, Coin) && player.health > 0) {
     player.numCoins++;
     removeSpriteClassFromLandSquare(x, y, Coin);
   }
   if (landSquareContainsSprite(x, y, Skeleton)) {
-    player.onAttacked();
+    player.onInjured();
+  }
+  if (landSquareHasTerrain(x, y, TERRAIN_CODES.OCEAN)) {
+    player.onInjured();
   }
 }
 
