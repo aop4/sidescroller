@@ -38,6 +38,7 @@ class Skeleton extends Sprite {
       this.yCoord = nextY;
       if (player.xCoord === this.xCoord && player.yCoord === this.yCoord) {
         player.onInjured();
+        playAudio(ATTACK_SOUND);
       }
     }
   }
@@ -70,12 +71,15 @@ class GameData {
 }
 
 const SCREEN_SIZE = 8; // width/height of the player's current view of the map
+const ATTACK_SOUND = 'attack_sound.m4a';
+const DROWNING_SOUND = 'drowning_sound.m4a';
 const gameData = new GameData();
 const gameMap = generateMatrix();
 // player starts in middle of map
 const PLAYER_START_X = gameMap[0].length / 2;
 const PLAYER_START_Y = gameMap.length / 2;
 const player = new Player(PLAYER_START_X, PLAYER_START_Y);
+const themeMusic = new Audio('../resources/Theme.mp3');
 
 resetScreenOffsets();
 
@@ -109,6 +113,13 @@ let vue = new Vue({
     },
     shouldDrawSkeleton(x, y) {
       return landSquareContainsSprite(x, y, Skeleton);
+    },
+    onGameStarted() {
+      gameData.hasGameStarted = true;
+      themeMusic.play();
+    },
+    toggleMusic() {
+      themeMusic.muted = !themeMusic.muted;
     }
   }
 });
@@ -213,9 +224,11 @@ function onPlayerMoved(x, y) {
   }
   if (landSquareContainsSprite(x, y, Skeleton)) {
     player.onInjured();
+    playAudio(ATTACK_SOUND);
   }
   if (landSquareHasTerrain(x, y, TERRAIN_CODES.OCEAN)) {
     player.onInjured();
+    playAudio(DROWNING_SOUND);
   }
 }
 
@@ -250,4 +263,8 @@ function addSpriteToLandSquare(x, y, sprite) {
 function resetScreenOffsets() {
   gameData.screenYOffset = Math.floor(player.yCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from top of game map
   gameData.screenXOffset = Math.floor(player.xCoord / SCREEN_SIZE) * SCREEN_SIZE; // offset of the player's view from left side of game map
+}
+
+function playAudio(fileName) {
+  (new Audio('../resources/' + fileName)).play();
 }

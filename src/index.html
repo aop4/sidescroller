@@ -10,7 +10,7 @@
         <div id="app">
             <div class="game-screen" rel="gameScreen" tabindex="0" v-on:keyup.left="movePlayerLeft(player)" v-on:keyup.right="movePlayerRight(player)" v-on:keyup.down="movePlayerDown(player)" v-on:keyup.up="movePlayerUp(player)">
                 <div v-if="!gameData.hasGameStarted" class="info-panel">
-                    <h1 v-on:click="gameData.hasGameStarted = true" class="clickable-text fancy-text shadow-text">Click to Play</h1>
+                    <h1 v-on:click="onGameStarted" class="clickable-text fancy-text shadow-text">Click to Play</h1>
                     <p class="fancy-text instructions">Collect all the gold.</p>
                     <p class="fancy-text instructions">Avoid dark ocean water.</p>
                     <p class="fancy-text instructions">Use arrow keys to move.</p>
@@ -38,6 +38,7 @@
                             {{player.numCoins}}/{{gameData.totalNumCoins}}
                         </p>
                     </div>
+                    <img src="../resources/music_note_muted.png" v-on:click="toggleMusic" class="sprite-small clickable-text">
                     <div class="health-status">
                         <img v-for="n in player.health" src="../resources/heart.png" class="sprite-small">
                     </div>
