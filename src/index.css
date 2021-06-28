@@ -5,6 +5,18 @@ body {
     background-size: 100% 100%;
 }
 
+#app {
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 800px;
+}
+
 .game-screen {
     position: relative;
     outline: none;
@@ -52,6 +64,12 @@ body {
     position: relative;
 }
 
+.mini-land-square {
+    width: 8px;
+    height: 8px;
+    position: relative;
+}
+
 .sprite {
     position: absolute;
     bottom: 0;
@@ -66,6 +84,11 @@ body {
 .sprite-small {
     width: 32px;
     height: 32px;
+}
+
+.mini-land-img {
+    width: 8px;
+    height: 8px;
 }
 
 .sprite-centered {

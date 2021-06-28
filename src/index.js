@@ -120,6 +120,10 @@ let vue = new Vue({
     },
     toggleMusic() {
       themeMusic.muted = !themeMusic.muted;
+    },
+    isCoordinateInView(col, row) {
+      return col >= gameData.screenXOffset && col < gameData.screenXOffset + SCREEN_SIZE
+        && row >= gameData.screenYOffset && row < gameData.screenYOffset + SCREEN_SIZE;
     }
   }
 });

@@ -8,39 +8,49 @@
     </head>
     <body>
         <div id="app">
-            <div class="game-screen" rel="gameScreen" tabindex="0" v-on:keyup.left="movePlayerLeft(player)" v-on:keyup.right="movePlayerRight(player)" v-on:keyup.down="movePlayerDown(player)" v-on:keyup.up="movePlayerUp(player)">
-                <div v-if="!gameData.hasGameStarted" class="info-panel">
-                    <h1 v-on:click="onGameStarted" class="clickable-text fancy-text shadow-text">Click to Play</h1>
-                    <p class="fancy-text instructions">Collect all the gold.</p>
-                    <p class="fancy-text instructions">Avoid dark ocean water.</p>
-                    <p class="fancy-text instructions">Use arrow keys to move.</p>
-                </div>
-                <div v-if="player.health === 0" class="info-panel">
-                    <h1 class="fancy-text shadow-text">Game Over</h1>
-                </div>
-                <div v-if="player.numCoins === gameData.totalNumCoins" class="info-panel">
-                    <h1 class="fancy-text shadow-text">Victory!</h1>
-                </div>
-                <div v-for="row in screenSize" class="row">
-                    <div v-for="col in screenSize" class="square">
-                        <img v-if="shouldDrawLake(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/water_small.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawLand(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/land_small.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawOcean(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/ocean.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawCoin(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/coin.png" class="sprite sprite-small sprite-centered">
-                        <img v-if="shouldDrawPlayer(player, col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/sprite.png" class="sprite sprite-large">
-                        <img v-if="shouldDrawSkeleton(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/skeleton.png" class="sprite skeleton">
+            <div class="container">
+                <div class="game-screen" rel="gameScreen" tabindex="0" v-on:keyup.left="movePlayerLeft(player)" v-on:keyup.right="movePlayerRight(player)" v-on:keyup.down="movePlayerDown(player)" v-on:keyup.up="movePlayerUp(player)">
+                    <div v-if="!gameData.hasGameStarted" class="info-panel">
+                        <h1 v-on:click="onGameStarted" class="clickable-text fancy-text shadow-text">Click to Play</h1>
+                        <p class="fancy-text instructions">Collect all the gold.</p>
+                        <p class="fancy-text instructions">Avoid dark ocean water.</p>
+                        <p class="fancy-text instructions">Use arrow keys to move.</p>
+                    </div>
+                    <div v-if="player.health === 0" class="info-panel">
+                        <h1 class="fancy-text shadow-text">Game Over</h1>
+                    </div>
+                    <div v-if="player.numCoins === gameData.totalNumCoins" class="info-panel">
+                        <h1 class="fancy-text shadow-text">Victory!</h1>
+                    </div>
+                    <div v-for="row in screenSize" class="row">
+                        <div v-for="col in screenSize" class="square">
+                            <img v-if="shouldDrawLake(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/water_small.png" class="sprite sprite-large">
+                            <img v-if="shouldDrawLand(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/land_small.png" class="sprite sprite-large">
+                            <img v-if="shouldDrawOcean(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/ocean.png" class="sprite sprite-large">
+                            <img v-if="shouldDrawCoin(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/coin.png" class="sprite sprite-small sprite-centered">
+                            <img v-if="shouldDrawPlayer(player, col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/sprite.png" class="sprite sprite-large">
+                            <img v-if="shouldDrawSkeleton(col + gameData.screenXOffset, row + gameData.screenYOffset)" src="../resources/skeleton.png" class="sprite skeleton">
+                        </div>
+                    </div>
+                    <div class="status-bar">
+                        <div class="coin-status">
+                            <img src="../resources/coin.png" class="sprite-small">
+                            <p class="fancy-text coin-text">
+                                {{player.numCoins}}/{{gameData.totalNumCoins}}
+                            </p>
+                        </div>
+                        <img src="../resources/music_note_muted.png" v-on:click="toggleMusic" class="sprite-small clickable-text">
+                        <div class="health-status">
+                            <img v-for="n in player.health" src="../resources/heart.png" class="sprite-small">
+                        </div>
                     </div>
                 </div>
-                <div class="status-bar">
-                    <div class="coin-status">
-                        <img src="../resources/coin.png" class="sprite-small">
-                        <p class="fancy-text coin-text">
-                            {{player.numCoins}}/{{gameData.totalNumCoins}}
-                        </p>
-                    </div>
-                    <img src="../resources/music_note_muted.png" v-on:click="toggleMusic" class="sprite-small clickable-text">
-                    <div class="health-status">
-                        <img v-for="n in player.health" src="../resources/heart.png" class="sprite-small">
+                <div>
+                    <div v-for="row in matrix.length" class="row">
+                        <div v-for="col in matrix[0].length" class="mini-land-square">
+                            <img v-if="isCoordinateInView(col, row)" src="../resources/land_on_screen.png" class="sprite mini-land-img">
+                            <img v-else src="../resources/land_off_screen.png" class="sprite mini-land-img">
+                        </div>
                     </div>
                 </div>
             </div>
